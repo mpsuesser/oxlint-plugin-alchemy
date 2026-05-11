@@ -1,0 +1,1226 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width,initial-scale=1" />
+		<title>oxlint-plugin-alchemy — Candidate Rules</title>
+		<style>
+			:root {
+				--bg: #0d1117;
+				--fg: #e6edf3;
+				--muted: #8d96a0;
+				--border: #30363d;
+				--surface: #161b22;
+				--surface-2: #1c222b;
+				--accent: #7ee787;
+				--accent-2: #79c0ff;
+				--warn: #ffa657;
+				--bad: #ff7b72;
+				--good: #56d364;
+				--keyword: #ff7b72;
+				--string: #a5d6ff;
+				--comment: #8b949e;
+				--punct: #c9d1d9;
+				--func: #d2a8ff;
+				--type: #ffa657;
+			}
+			@media (prefers-color-scheme: light) {
+				:root {
+					--bg: #ffffff;
+					--fg: #1f2328;
+					--muted: #59636e;
+					--border: #d0d7de;
+					--surface: #f6f8fa;
+					--surface-2: #eaeef2;
+					--accent: #1a7f37;
+					--accent-2: #0969da;
+					--warn: #9a6700;
+					--bad: #cf222e;
+					--good: #1a7f37;
+					--keyword: #cf222e;
+					--string: #0a3069;
+					--comment: #6e7781;
+					--punct: #1f2328;
+					--func: #8250df;
+					--type: #953800;
+				}
+			}
+			* {
+				box-sizing: border-box;
+			}
+			html,
+			body {
+				background: var(--bg);
+				color: var(--fg);
+			}
+			body {
+				font:
+					15px/1.55 -apple-system,
+					BlinkMacSystemFont,
+					'Segoe UI',
+					system-ui,
+					sans-serif;
+				margin: 0;
+				padding: 48px 24px 96px;
+			}
+			.wrap {
+				max-width: 920px;
+				margin: 0 auto;
+			}
+			h1 {
+				font-size: 32px;
+				margin: 0 0 8px;
+				letter-spacing: -0.02em;
+			}
+			h1 .sub {
+				color: var(--muted);
+				font-weight: 400;
+				font-size: 18px;
+			}
+			.lede {
+				color: var(--muted);
+				font-size: 15px;
+				margin: 8px 0 32px;
+				max-width: 680px;
+			}
+			.legend {
+				display: flex;
+				gap: 12px;
+				flex-wrap: wrap;
+				padding: 12px 16px;
+				background: var(--surface);
+				border: 1px solid var(--border);
+				border-radius: 8px;
+				margin-bottom: 32px;
+				font-size: 13px;
+				color: var(--muted);
+			}
+			.legend strong {
+				color: var(--fg);
+				font-weight: 500;
+			}
+			.rule {
+				border: 1px solid var(--border);
+				border-radius: 12px;
+				background: var(--surface);
+				margin: 24px 0;
+				overflow: hidden;
+			}
+			.rule-head {
+				padding: 20px 24px 12px;
+				border-bottom: 1px solid var(--border);
+			}
+			.rule-rank {
+				color: var(--muted);
+				font-size: 13px;
+				font-weight: 600;
+				letter-spacing: 0.08em;
+				text-transform: uppercase;
+			}
+			.rule-id {
+				font-family:
+					'SF Mono', 'JetBrains Mono', ui-monospace, Menlo, monospace;
+				color: var(--accent-2);
+				font-weight: 600;
+				font-size: 20px;
+				margin: 4px 0 0;
+			}
+			.rule-tagline {
+				color: var(--fg);
+				margin: 6px 0 12px;
+				font-size: 16px;
+			}
+			.badges {
+				display: flex;
+				gap: 8px;
+				flex-wrap: wrap;
+				margin-top: 8px;
+			}
+			.badge {
+				font-size: 11px;
+				padding: 3px 10px;
+				border-radius: 999px;
+				font-family:
+					'SF Mono', 'JetBrains Mono', ui-monospace, monospace;
+				background: var(--surface-2);
+				color: var(--muted);
+				border: 1px solid var(--border);
+			}
+			.badge.high {
+				background: rgba(86, 211, 100, 0.12);
+				color: var(--good);
+				border-color: rgba(86, 211, 100, 0.3);
+			}
+			.badge.med {
+				background: rgba(255, 166, 87, 0.12);
+				color: var(--warn);
+				border-color: rgba(255, 166, 87, 0.3);
+			}
+			.badge.low {
+				background: rgba(255, 123, 114, 0.12);
+				color: var(--bad);
+				border-color: rgba(255, 123, 114, 0.3);
+			}
+			.badge.tier {
+				background: var(--surface-2);
+				color: var(--fg);
+			}
+			.rule-body {
+				padding: 16px 24px 24px;
+			}
+			.rule-body h3 {
+				margin: 20px 0 8px;
+				font-size: 13px;
+				text-transform: uppercase;
+				letter-spacing: 0.06em;
+				color: var(--muted);
+				font-weight: 600;
+			}
+			.rule-body h3:first-child {
+				margin-top: 0;
+			}
+			.rule-body p {
+				margin: 0 0 12px;
+			}
+			.why {
+				color: var(--fg);
+			}
+			.why em {
+				color: var(--accent);
+				font-style: normal;
+				font-weight: 600;
+			}
+			pre {
+				margin: 8px 0;
+				padding: 14px 16px;
+				border-radius: 8px;
+				background: var(--surface-2);
+				border: 1px solid var(--border);
+				overflow-x: auto;
+				font:
+					13px/1.55 'SF Mono',
+					'JetBrains Mono',
+					ui-monospace,
+					Menlo,
+					monospace;
+				tab-size: 4;
+			}
+			pre.bad {
+				border-left: 3px solid var(--bad);
+			}
+			pre.good {
+				border-left: 3px solid var(--good);
+			}
+			pre.impl {
+				border-left: 3px solid var(--accent-2);
+			}
+			.case-label {
+				font-size: 11px;
+				text-transform: uppercase;
+				font-weight: 600;
+				letter-spacing: 0.06em;
+				margin: 12px 0 4px;
+				display: flex;
+				align-items: center;
+				gap: 6px;
+			}
+			.case-label.bad {
+				color: var(--bad);
+			}
+			.case-label.good {
+				color: var(--good);
+			}
+			.case-label::before {
+				content: '';
+				display: inline-block;
+				width: 10px;
+				height: 10px;
+				border-radius: 2px;
+				background: currentColor;
+				opacity: 0.7;
+			}
+			.ast {
+				color: var(--muted);
+				font-size: 12px;
+			}
+			.kw {
+				color: var(--keyword);
+			}
+			.str {
+				color: var(--string);
+			}
+			.cmt {
+				color: var(--comment);
+				font-style: italic;
+			}
+			.fn {
+				color: var(--func);
+			}
+			.ty {
+				color: var(--type);
+			}
+			.num {
+				color: var(--accent);
+			}
+			.punct {
+				color: var(--punct);
+			}
+			.toc {
+				background: var(--surface);
+				border: 1px solid var(--border);
+				border-radius: 8px;
+				padding: 16px 20px;
+				margin-bottom: 32px;
+			}
+			.toc h2 {
+				margin: 0 0 12px;
+				font-size: 14px;
+				text-transform: uppercase;
+				letter-spacing: 0.06em;
+				color: var(--muted);
+			}
+			.toc ol {
+				margin: 0;
+				padding-left: 28px;
+			}
+			.toc a {
+				color: var(--accent-2);
+				text-decoration: none;
+			}
+			.toc a:hover {
+				text-decoration: underline;
+			}
+			.verdict {
+				margin-top: 16px;
+				padding: 12px 16px;
+				background: var(--surface-2);
+				border-left: 3px solid var(--muted);
+				border-radius: 4px;
+				font-size: 13px;
+			}
+			.verdict strong {
+				color: var(--accent);
+			}
+			.verdict.skip {
+				border-left-color: var(--muted);
+			}
+			.verdict.next {
+				border-left-color: var(--good);
+			}
+			.verdict.maybe {
+				border-left-color: var(--warn);
+			}
+			.footnote {
+				color: var(--muted);
+				font-size: 13px;
+				margin-top: 48px;
+				padding-top: 16px;
+				border-top: 1px solid var(--border);
+			}
+		</style>
+	</head>
+	<body>
+		<div class="wrap">
+			<h1>
+				oxlint-plugin-alchemy<br /><span class="sub"
+					>Candidate rules — ranked &amp; implementation-ready</span
+				>
+			</h1>
+
+			<p class="lede">
+				The five high-confidence rules from the original survey are
+				shipped and tested. This page covers the remaining nine
+				candidates, ranked from
+				<em>strongest argument to ship next</em> down to
+				<em>nice idea, probably skip</em>. Each card walks through what
+				the rule catches, code it would flag, code it allows, and a
+				concrete <code>effect-oxlint</code> implementation sketch ready
+				to drop into <code>src/rules/</code>.
+			</p>
+
+			<div class="legend">
+				<span
+					><strong>Leverage</strong> — how much pain prevented when
+					the rule fires.</span
+				>
+				<span
+					><strong>Confidence</strong> — likelihood the rule fires
+					cleanly without type info or heavy false positives.</span
+				>
+			</div>
+
+			<div class="toc">
+				<h2>Contents</h2>
+				<ol>
+					<li>
+						<a href="#r3">no-v1-await-resource</a> — Tier 1, v1
+						migration
+					</li>
+					<li>
+						<a href="#r6">no-shouty-binding-keys</a> — Tier 1, v1
+						migration
+					</li>
+					<li>
+						<a href="#r5">no-v1-entrypoint-prop</a> — Tier 1, v1
+						migration
+					</li>
+					<li>
+						<a href="#r2">no-v1-finalize</a> — Tier 1, v1 migration
+					</li>
+					<li>
+						<a href="#r11">no-string-concat-output</a> — Tier 3,
+						Output safety
+					</li>
+					<li>
+						<a href="#r9">bind-in-init-only</a> — Tier 2, phase
+						discipline
+					</li>
+					<li>
+						<a href="#r14"
+							>platform-main-import-meta-path-when-collocated</a
+						>
+						— Tier 4, structure
+					</li>
+					<li>
+						<a href="#r10">no-shadowing-global-worker</a> — Tier 2,
+						naming
+					</li>
+					<li>
+						<a href="#r12">no-console-log-output</a> — Tier 3,
+						Output safety
+					</li>
+				</ol>
+			</div>
+
+			<!-- ────────────────────────────────────────────────────────── -->
+
+			<article class="rule" id="r3">
+				<div class="rule-head">
+					<div class="rule-rank">Rank 1 · v1 migration footgun</div>
+					<h2 class="rule-id">no-v1-await-resource</h2>
+					<p class="rule-tagline">
+						Ban <code>await Cloudflare.R2Bucket(...)</code>,
+						<code>await AWS.Lambda.Function(...)</code>, etc. v2
+						resources are Effects — use <code>yield*</code> inside
+						an <code>Alchemy.Stack</code> generator.
+					</p>
+					<div class="badges">
+						<span class="badge high">Leverage: high</span>
+						<span class="badge med">Confidence: med-high</span>
+						<span class="badge tier">Tier 1</span>
+					</div>
+				</div>
+				<div class="rule-body">
+					<h3>Why it matters</h3>
+					<p class="why">
+						In v1, every resource constructor returned a Promise:
+						<code>const bucket = await R2Bucket("bucket", {})</code
+						>. In v2 the same constructor returns an
+						<em>Effect</em>. <code>await</code>-ing it kicks off no
+						work, races no deploy, and silently leaves you with an
+						unfinalized <code>Effect</code> value being used as if
+						it were a resource handle. The next code that reads
+						<code>bucket.bucketName</code> gets undefined behavior,
+						and there is no diagnostic until something tries to use
+						the (non-)Output downstream.
+					</p>
+
+					<div class="case-label bad">Cases this would catch</div>
+					<pre
+						class="bad"
+					><span class="cmt">// v1 leftover — silently produces an unfinalized Effect, not a resource.</span>
+<span class="kw">const</span> bucket = <span class="kw">await</span> <span class="ty">Cloudflare</span>.<span class="fn">R2Bucket</span>(<span class="str">"Bucket"</span>);
+
+<span class="kw">const</span> queue = <span class="kw">await</span> <span class="ty">AWS</span>.<span class="ty">SQS</span>.<span class="fn">Queue</span>(<span class="str">"Jobs"</span>, { fifoQueue: <span class="kw">true</span> });
+
+<span class="kw">const</span> fn = <span class="kw">await</span> <span class="ty">AWS</span>.<span class="ty">Lambda</span>.<span class="fn">Function</span>(<span class="str">"Api"</span>, { main: <span class="str">"./api.ts"</span> });</pre>
+
+					<div class="case-label good">Allowed</div>
+					<pre
+						class="good"
+					><span class="cmt">// v2 — yield* inside a Stack / Worker / Effect.gen.</span>
+<span class="ty">Effect</span>.<span class="fn">gen</span>(<span class="kw">function</span>* () {
+    <span class="kw">const</span> bucket = <span class="kw">yield</span>* <span class="ty">Cloudflare</span>.<span class="fn">R2Bucket</span>(<span class="str">"Bucket"</span>);
+    <span class="kw">const</span> queue  = <span class="kw">yield</span>* <span class="ty">AWS</span>.<span class="ty">SQS</span>.<span class="fn">Queue</span>(<span class="str">"Jobs"</span>);
+});</pre>
+
+					<h3>Implementation sketch</h3>
+					<pre
+						class="impl"
+					><span class="kw">import type</span> { <span class="ty">ESTree</span> } <span class="kw">from</span> <span class="str">'effect-oxlint'</span>;
+<span class="kw">import</span> * <span class="kw">as</span> <span class="ty">Effect</span>   <span class="kw">from</span> <span class="str">'effect/Effect'</span>;
+<span class="kw">import</span> * <span class="kw">as</span> <span class="ty">Option</span>   <span class="kw">from</span> <span class="str">'effect/Option'</span>;
+<span class="kw">import</span> { <span class="ty">AST</span>, <span class="ty">Diagnostic</span>, <span class="ty">Rule</span>, <span class="ty">RuleContext</span> } <span class="kw">from</span> <span class="str">'effect-oxlint'</span>;
+
+<span class="kw">const</span> <span class="ty">ALCHEMY_ROOTS</span> = <span class="kw">new</span> <span class="ty">Set</span>([<span class="str">'Cloudflare'</span>, <span class="str">'AWS'</span>, <span class="str">'Alchemy'</span>, <span class="str">'Axiom'</span>, <span class="str">'PlanetScale'</span>]);
+<span class="kw">const</span> <span class="ty">PASCAL</span> = <span class="str">/^[A-Z][A-Za-z0-9]*$/</span>;
+
+<span class="kw">export default</span> <span class="ty">Rule</span>.<span class="fn">define</span>({
+    name: <span class="str">'no-v1-await-resource'</span>,
+    meta: <span class="ty">Rule</span>.<span class="fn">meta</span>({ type: <span class="str">'problem'</span>, description: <span class="str">'...'</span> }),
+    create: <span class="kw">function</span>* () {
+        <span class="kw">const</span> ctx = <span class="kw">yield</span>* <span class="ty">RuleContext</span>;
+        <span class="kw">return</span> {
+            <span class="ty">AwaitExpression</span>: (node) =&gt; {
+                <span class="kw">const</span> a = node <span class="kw">as</span> <span class="ty">ESTree</span>.<span class="ty">AwaitExpression</span>;
+                <span class="kw">if</span> (a.argument.type !== <span class="str">'CallExpression'</span>) <span class="kw">return</span> <span class="ty">Effect</span>.<span class="ty">void</span>;
+                <span class="kw">const</span> call = a.argument;
+                <span class="kw">if</span> (call.callee.type !== <span class="str">'MemberExpression'</span>) <span class="kw">return</span> <span class="ty">Effect</span>.<span class="ty">void</span>;
+                <span class="kw">const</span> path = <span class="ty">AST</span>.<span class="fn">memberPath</span>(call.callee);
+                <span class="kw">if</span> (<span class="ty">Option</span>.<span class="fn">isNone</span>(path)) <span class="kw">return</span> <span class="ty">Effect</span>.<span class="ty">void</span>;
+                <span class="kw">const</span> root  = path.value[<span class="num">0</span>];
+                <span class="kw">const</span> final = path.value[path.value.length - <span class="num">1</span>];
+                <span class="kw">if</span> (!<span class="ty">ALCHEMY_ROOTS</span>.<span class="fn">has</span>(root)) <span class="kw">return</span> <span class="ty">Effect</span>.<span class="ty">void</span>;
+                <span class="kw">if</span> (!<span class="ty">PASCAL</span>.<span class="fn">test</span>(final))   <span class="kw">return</span> <span class="ty">Effect</span>.<span class="ty">void</span>;
+                <span class="kw">return</span> ctx.<span class="fn">report</span>(<span class="ty">Diagnostic</span>.<span class="fn">make</span>({
+                    node,
+                    message: <span class="str">`v1 \`await ${path.value.join('.')}(...)\` is not supported in v2 — use \`yield* …\` inside Alchemy.Stack. (AL-3)`</span>
+                }));
+            }
+        };
+    }
+});</pre>
+
+					<p class="ast">
+						AST shape:
+						<code
+							>AwaitExpression → CallExpression → MemberExpression
+							chain</code
+						>. Reuses the namespace allowlist and PascalCase
+						predicate from <code>require-stable-logical-id</code>;
+						safe to extract into a shared <code>util.ts</code> when
+						these duplicate.
+					</p>
+
+					<div class="verdict next">
+						<strong>Verdict:</strong> Strongest argument to ship
+						next. Pure migration-aid value; same heuristic stack as
+						the existing
+						<code>require-stable-logical-id</code> rule; almost zero
+						novel design.
+					</div>
+				</div>
+			</article>
+
+			<!-- ────────────────────────────────────────────────────────── -->
+
+			<article class="rule" id="r6">
+				<div class="rule-head">
+					<div class="rule-rank">Rank 2 · v1 migration footgun</div>
+					<h2 class="rule-id">no-shouty-binding-keys</h2>
+					<p class="rule-tagline">
+						In a Platform's <code>bindings: { ... }</code> object,
+						ban SHOUTY_SNAKE_CASE keys — v2 uses PascalCase
+						shorthand matching the resource identifier.
+					</p>
+					<div class="badges">
+						<span class="badge high">Leverage: high</span>
+						<span class="badge med">Confidence: med-high</span>
+						<span class="badge tier">Tier 1</span>
+					</div>
+				</div>
+				<div class="rule-body">
+					<h3>Why it matters</h3>
+					<p class="why">
+						v1 convention was
+						<code>bindings: { BUCKET: bucket }</code> and the Worker
+						handler read <code>env.BUCKET</code>. v2 standardizes on
+						<code>bindings: { Bucket }</code> — the key is the same
+						identifier as the resource, accessed as
+						<code>env.Bucket</code>. <code>InferEnv</code> derives
+						the typed shape from this naming. A migrated codebase
+						that keeps the old keys ends up with mismatched
+						<code>InferEnv</code> output and confusing autocomplete.
+					</p>
+
+					<div class="case-label bad">Cases this would catch</div>
+					<pre
+						class="bad"
+					><span class="kw">export const</span> <span class="ty">Worker</span> = <span class="ty">Cloudflare</span>.<span class="fn">Worker</span>(<span class="str">"Worker"</span>, {
+    main: <span class="str">"./src/worker.ts"</span>,
+    bindings: { <span class="ty">BUCKET</span>: Bucket, <span class="ty">KV</span>: Sessions }   <span class="cmt">// ← flag both</span>
+});</pre>
+
+					<div class="case-label good">Allowed</div>
+					<pre
+						class="good"
+					><span class="kw">export const</span> <span class="ty">Worker</span> = <span class="ty">Cloudflare</span>.<span class="fn">Worker</span>(<span class="str">"Worker"</span>, {
+    main: <span class="str">"./src/worker.ts"</span>,
+    bindings: { Bucket, Sessions }                  <span class="cmt">// ← canonical shorthand</span>
+});</pre>
+
+					<h3>Implementation sketch</h3>
+					<pre
+						class="impl"
+					><span class="kw">import type</span> { <span class="ty">ESTree</span> } <span class="kw">from</span> <span class="str">'effect-oxlint'</span>;
+<span class="kw">import</span> * <span class="kw">as</span> <span class="ty">Effect</span> <span class="kw">from</span> <span class="str">'effect/Effect'</span>;
+<span class="kw">import</span> { <span class="ty">AST</span>, <span class="ty">Diagnostic</span>, <span class="ty">Rule</span>, <span class="ty">RuleContext</span> } <span class="kw">from</span> <span class="str">'effect-oxlint'</span>;
+
+<span class="cmt">// Two-deep platform identifiers — extend as new platforms ship.</span>
+<span class="kw">const</span> <span class="ty">PLATFORMS</span>: <span class="kw">ReadonlyArray</span>&lt;<span class="kw">readonly</span> [string, string]&gt; = [
+    [<span class="str">'Cloudflare'</span>, <span class="str">'Worker'</span>],
+    [<span class="str">'Cloudflare'</span>, <span class="str">'Container'</span>],
+];
+<span class="kw">const</span> <span class="ty">SHOUTY</span> = <span class="str">/^[A-Z][A-Z0-9_]*$/</span>;
+
+<span class="kw">export default</span> <span class="ty">Rule</span>.<span class="fn">define</span>({
+    name: <span class="str">'no-shouty-binding-keys'</span>,
+    meta: <span class="ty">Rule</span>.<span class="fn">meta</span>({ type: <span class="str">'suggestion'</span>, description: <span class="str">'...'</span> }),
+    create: <span class="kw">function</span>* () {
+        <span class="kw">const</span> ctx = <span class="kw">yield</span>* <span class="ty">RuleContext</span>;
+        <span class="kw">return</span> {
+            <span class="ty">CallExpression</span>: (node) =&gt; <span class="ty">Effect</span>.<span class="fn">gen</span>(<span class="kw">function</span>* () {
+                <span class="kw">const</span> call = node <span class="kw">as</span> <span class="ty">ESTree</span>.<span class="ty">CallExpression</span>;
+                <span class="kw">if</span> (!<span class="ty">PLATFORMS</span>.<span class="fn">some</span>(([o, p]) =&gt; <span class="ty">AST</span>.<span class="fn">isCallOf</span>(call, o, p))) <span class="kw">return</span>;
+
+                <span class="kw">for</span> (<span class="kw">const</span> arg <span class="kw">of</span> call.arguments) {
+                    <span class="kw">if</span> (arg.type !== <span class="str">'ObjectExpression'</span>) <span class="kw">continue</span>;
+                    <span class="kw">for</span> (<span class="kw">const</span> prop <span class="kw">of</span> arg.properties) {
+                        <span class="kw">if</span> (prop.type !== <span class="str">'Property'</span>) <span class="kw">continue</span>;
+                        <span class="kw">if</span> (prop.key.type !== <span class="str">'Identifier'</span>) <span class="kw">continue</span>;
+                        <span class="kw">if</span> (prop.key.name !== <span class="str">'bindings'</span>) <span class="kw">continue</span>;
+                        <span class="kw">if</span> (prop.value.type !== <span class="str">'ObjectExpression'</span>) <span class="kw">continue</span>;
+
+                        <span class="kw">for</span> (<span class="kw">const</span> binding <span class="kw">of</span> prop.value.properties) {
+                            <span class="kw">if</span> (binding.type !== <span class="str">'Property'</span>) <span class="kw">continue</span>;
+                            <span class="kw">if</span> (binding.key.type !== <span class="str">'Identifier'</span>) <span class="kw">continue</span>;
+                            <span class="kw">if</span> (!<span class="ty">SHOUTY</span>.<span class="fn">test</span>(binding.key.name)) <span class="kw">continue</span>;
+                            <span class="kw">yield</span>* ctx.<span class="fn">report</span>(<span class="ty">Diagnostic</span>.<span class="fn">make</span>({
+                                node: binding.key,
+                                message: <span class="str">`v1 \`${binding.key.name}\` binding key — use shorthand \`{ ${...} }\` matching the resource class for InferEnv to derive correctly. (AL-6)`</span>
+                            }));
+                        }
+                    }
+                }
+            })
+        };
+    }
+});</pre>
+
+					<div class="verdict next">
+						<strong>Verdict:</strong> Strongly recommend shipping.
+						Med-high confidence comes from the slight risk that
+						someone genuinely wants a SHOUTY env var key — but the
+						docs go out of their way to deprecate that style, and
+						the rule is auto-fixable to shorthand whenever the value
+						is a PascalCase identifier.
+					</div>
+				</div>
+			</article>
+
+			<!-- ────────────────────────────────────────────────────────── -->
+
+			<article class="rule" id="r5">
+				<div class="rule-head">
+					<div class="rule-rank">Rank 3 · v1 migration footgun</div>
+					<h2 class="rule-id">no-v1-entrypoint-prop</h2>
+					<p class="rule-tagline">
+						Disallow <code>entrypoint:</code> in a Worker / Lambda /
+						Container props object — renamed to
+						<code>main:</code> in v2.
+					</p>
+					<div class="badges">
+						<span class="badge med">Leverage: med-high</span>
+						<span class="badge med">Confidence: med</span>
+						<span class="badge tier">Tier 1</span>
+					</div>
+				</div>
+				<div class="rule-body">
+					<h3>Why it matters</h3>
+					<p class="why">
+						A direct rename. Passing <code>entrypoint:</code> in v2
+						silently does nothing because the prop isn't read — and
+						depending on TS settings, an excess property check may
+						not even fire (e.g. when the props are spread or come
+						from a variable). Result: deploy goes through with the
+						wrong bundle. This is the rename most likely to bite
+						during a v1→v2 sweep.
+					</p>
+
+					<div class="case-label bad">Cases this would catch</div>
+					<pre
+						class="bad"
+					><span class="ty">Cloudflare</span>.<span class="fn">Worker</span>(<span class="str">"Worker"</span>, {
+    entrypoint: <span class="str">"./src/worker.ts"</span>,   <span class="cmt">// ← flag</span>
+    bindings: { Bucket }
+});</pre>
+
+					<div class="case-label good">Allowed</div>
+					<pre
+						class="good"
+					><span class="ty">Cloudflare</span>.<span class="fn">Worker</span>(<span class="str">"Worker"</span>, {
+    main: <span class="str">"./src/worker.ts"</span>,
+    bindings: { Bucket }
+});</pre>
+
+					<h3>Implementation sketch</h3>
+					<pre
+						class="impl"
+					><span class="kw">import type</span> { <span class="ty">ESTree</span> } <span class="kw">from</span> <span class="str">'effect-oxlint'</span>;
+<span class="kw">import</span> * <span class="kw">as</span> <span class="ty">Effect</span> <span class="kw">from</span> <span class="str">'effect/Effect'</span>;
+<span class="kw">import</span> { <span class="ty">AST</span>, <span class="ty">Diagnostic</span>, <span class="ty">Rule</span>, <span class="ty">RuleContext</span> } <span class="kw">from</span> <span class="str">'effect-oxlint'</span>;
+
+<span class="kw">const</span> <span class="ty">PLATFORMS</span>: <span class="kw">ReadonlyArray</span>&lt;<span class="kw">readonly</span> [string, string]&gt; = [
+    [<span class="str">'Cloudflare'</span>, <span class="str">'Worker'</span>],
+    [<span class="str">'Cloudflare'</span>, <span class="str">'Container'</span>],
+];
+
+<span class="kw">export default</span> <span class="ty">Rule</span>.<span class="fn">define</span>({
+    name: <span class="str">'no-v1-entrypoint-prop'</span>,
+    meta: <span class="ty">Rule</span>.<span class="fn">meta</span>({ type: <span class="str">'problem'</span>, description: <span class="str">'...'</span> }),
+    create: <span class="kw">function</span>* () {
+        <span class="kw">const</span> ctx = <span class="kw">yield</span>* <span class="ty">RuleContext</span>;
+        <span class="kw">return</span> {
+            <span class="ty">CallExpression</span>: (node) =&gt; {
+                <span class="kw">const</span> call = node <span class="kw">as</span> <span class="ty">ESTree</span>.<span class="ty">CallExpression</span>;
+                <span class="kw">const</span> matches = <span class="ty">PLATFORMS</span>.<span class="fn">some</span>(([o, p]) =&gt; <span class="ty">AST</span>.<span class="fn">isCallOf</span>(call, o, p));
+                <span class="kw">if</span> (!matches) <span class="kw">return</span> <span class="ty">Effect</span>.<span class="ty">void</span>;
+
+                <span class="kw">for</span> (<span class="kw">const</span> arg <span class="kw">of</span> call.arguments) {
+                    <span class="kw">if</span> (arg.type !== <span class="str">'ObjectExpression'</span>) <span class="kw">continue</span>;
+                    <span class="kw">for</span> (<span class="kw">const</span> prop <span class="kw">of</span> arg.properties) {
+                        <span class="kw">if</span> (prop.type !== <span class="str">'Property'</span>) <span class="kw">continue</span>;
+                        <span class="kw">if</span> (prop.key.type !== <span class="str">'Identifier'</span>) <span class="kw">continue</span>;
+                        <span class="kw">if</span> (prop.key.name !== <span class="str">'entrypoint'</span>) <span class="kw">continue</span>;
+                        <span class="kw">return</span> ctx.<span class="fn">report</span>(<span class="ty">Diagnostic</span>.<span class="fn">make</span>({
+                            node: prop.key,
+                            message: <span class="str">'`entrypoint:` was renamed to `main:` in Alchemy v2. (AL-5)'</span>
+                        }));
+                    }
+                }
+                <span class="kw">return</span> <span class="ty">Effect</span>.<span class="ty">void</span>;
+            }
+        };
+    }
+});</pre>
+
+					<div class="verdict next">
+						<strong>Verdict:</strong> Ship. Tight scope, easy
+						auto-fix, narrowly targeted to platforms so false
+						positives on unrelated <code>entrypoint:</code> keys are
+						impossible.
+					</div>
+				</div>
+			</article>
+
+			<!-- ────────────────────────────────────────────────────────── -->
+
+			<article class="rule" id="r2">
+				<div class="rule-head">
+					<div class="rule-rank">Rank 4 · v1 migration footgun</div>
+					<h2 class="rule-id">no-v1-finalize</h2>
+					<p class="rule-tagline">
+						Ban <code>app.finalize()</code> /
+						<code>await app.finalize()</code> — v2 lifecycle is
+						handled by the <code>Alchemy.Stack</code> wrapper.
+					</p>
+					<div class="badges">
+						<span class="badge med">Leverage: med</span>
+						<span class="badge med">Confidence: med</span>
+						<span class="badge tier">Tier 1</span>
+					</div>
+				</div>
+				<div class="rule-body">
+					<h3>Why it matters</h3>
+					<p class="why">
+						In v1, every <code>alchemy.run.ts</code> ended with
+						<code>await app.finalize()</code> to flush the deploy.
+						v2's <code>Alchemy.Stack(...)</code> wraps the lifecycle
+						and there is no <code>.finalize()</code> to call. A
+						leftover call either crashes (no such method on the new
+						return type) or silently no-ops on a stale typing.
+					</p>
+
+					<div class="case-label bad">Cases this would catch</div>
+					<pre
+						class="bad"
+					><span class="kw">const</span> app = <span class="kw">await</span> <span class="fn">alchemy</span>(<span class="str">"my-app"</span>, {});       <span class="cmt">// also flagged by no-v1-await-stack</span>
+<span class="cmt">// ...</span>
+<span class="kw">await</span> app.<span class="fn">finalize</span>();                       <span class="cmt">// ← this rule</span></pre>
+
+					<div class="case-label good">Allowed</div>
+					<pre
+						class="good"
+					><span class="cmt">// v2 — Alchemy.Stack handles finalization internally.</span>
+<span class="kw">export default</span> <span class="ty">Alchemy</span>.<span class="fn">Stack</span>(<span class="str">"MyApp"</span>, {...}, <span class="ty">Effect</span>.<span class="fn">gen</span>(<span class="kw">function</span>* () {...}));</pre>
+
+					<h3>Implementation sketch</h3>
+					<pre
+						class="impl"
+					><span class="cmt">// Match `x.finalize()` where `x` is a bare identifier — narrow to reduce</span>
+<span class="cmt">// false positives on unrelated `.finalize()` methods (e.g. crypto APIs).</span>
+<span class="kw">export default</span> <span class="ty">Rule</span>.<span class="fn">define</span>({
+    name: <span class="str">'no-v1-finalize'</span>,
+    meta: <span class="ty">Rule</span>.<span class="fn">meta</span>({ type: <span class="str">'problem'</span>, description: <span class="str">'...'</span> }),
+    create: <span class="kw">function</span>* () {
+        <span class="kw">const</span> ctx = <span class="kw">yield</span>* <span class="ty">RuleContext</span>;
+        <span class="kw">return</span> {
+            <span class="ty">CallExpression</span>: (node) =&gt; {
+                <span class="kw">const</span> call = node <span class="kw">as</span> <span class="ty">ESTree</span>.<span class="ty">CallExpression</span>;
+                <span class="kw">if</span> (call.callee.type !== <span class="str">'MemberExpression'</span>)   <span class="kw">return</span> <span class="ty">Effect</span>.<span class="ty">void</span>;
+                <span class="kw">const</span> m = call.callee;
+                <span class="kw">if</span> (m.computed)                                <span class="kw">return</span> <span class="ty">Effect</span>.<span class="ty">void</span>;
+                <span class="kw">if</span> (m.property.type !== <span class="str">'Identifier'</span>)        <span class="kw">return</span> <span class="ty">Effect</span>.<span class="ty">void</span>;
+                <span class="kw">if</span> (m.property.name !== <span class="str">'finalize'</span>)           <span class="kw">return</span> <span class="ty">Effect</span>.<span class="ty">void</span>;
+                <span class="kw">if</span> (m.object.type !== <span class="str">'Identifier'</span>)          <span class="kw">return</span> <span class="ty">Effect</span>.<span class="ty">void</span>;
+                <span class="kw">if</span> (call.arguments.length !== <span class="num">0</span>)             <span class="kw">return</span> <span class="ty">Effect</span>.<span class="ty">void</span>;
+                <span class="kw">return</span> ctx.<span class="fn">report</span>(<span class="ty">Diagnostic</span>.<span class="fn">make</span>({
+                    node,
+                    message: <span class="str">'v1 `app.finalize()` is not needed in v2 — `Alchemy.Stack(...)` finalizes automatically. (AL-2)'</span>
+                }));
+            }
+        };
+    }
+});</pre>
+
+					<p class="ast">
+						Heuristic: require <code>obj.finalize()</code> with zero
+						arguments and a bare identifier object. Could be
+						tightened with scope analysis (only flag when
+						<code>obj</code> was bound from
+						<code>alchemy(...)</code>), but the bare-identifier +
+						zero-arg shape is rare outside the v1 pattern.
+					</p>
+
+					<div class="verdict next">
+						<strong>Verdict:</strong> Ship. Companion to
+						<code>no-v1-await-stack</code>; together they're the
+						"definitely a v1 codebase" smoke alarm.
+					</div>
+				</div>
+			</article>
+
+			<!-- ────────────────────────────────────────────────────────── -->
+
+			<article class="rule" id="r11">
+				<div class="rule-head">
+					<div class="rule-rank">Rank 5 · Output safety</div>
+					<h2 class="rule-id">no-string-concat-output</h2>
+					<p class="rule-tagline">
+						Ban string concatenation and untagged template literals
+						that interpolate Output-shaped values — use
+						<code>Output.interpolate</code>.
+					</p>
+					<div class="badges">
+						<span class="badge high">Leverage: high</span>
+						<span class="badge med"
+							>Confidence: med (heuristic) / high (with type
+							info)</span
+						>
+						<span class="badge tier">Tier 3</span>
+					</div>
+				</div>
+				<div class="rule-body">
+					<h3>Why it matters</h3>
+					<p class="why">
+						An <code>Output&lt;string&gt;</code> is a lazy
+						reference, not a string. Concatenating one with template
+						literals or <code>+</code> calls
+						<code>toString()</code> on the lazy expression node,
+						producing garbage like
+						<code>"prefix-[object Object]/objects/*"</code>. This
+						goes into deployed config and is found later by humans
+						staring at a broken ARN.
+						<code>Output.interpolate\`...\`</code> is a drop-in fix
+						that wires dependencies correctly.
+					</p>
+
+					<div class="case-label bad">
+						Cases this would catch (heuristically)
+					</div>
+					<pre
+						class="bad"
+					><span class="kw">const</span> bucket = <span class="kw">yield</span>* <span class="ty">Cloudflare</span>.<span class="fn">R2Bucket</span>(<span class="str">"Bucket"</span>);
+
+<span class="kw">const</span> arn = <span class="str">`arn:aws:s3:::${bucket.bucketName}/objects/*`</span>;   <span class="cmt">// ← flag</span>
+<span class="kw">const</span> dsn = <span class="str">"postgres://"</span> + db.host + <span class="str">":"</span> + db.port;       <span class="cmt">// ← flag</span></pre>
+
+					<div class="case-label good">Allowed</div>
+					<pre
+						class="good"
+					><span class="kw">const</span> arn = <span class="ty">Output</span>.<span class="fn">interpolate</span><span class="str">`arn:aws:s3:::${bucket.bucketName}/objects/*`</span>;
+<span class="kw">const</span> dsn = <span class="ty">Output</span>.<span class="fn">interpolate</span><span class="str">`postgres://${db.host}:${db.port}`</span>;</pre>
+
+					<h3>Implementation sketch</h3>
+					<pre
+						class="impl"
+					><span class="cmt">// Heuristic: an interpolated expression looks Output-shaped if it is a</span>
+<span class="cmt">// MemberExpression whose property name ends in a recognized Output suffix.</span>
+<span class="kw">const</span> <span class="ty">OUTPUT_SUFFIX</span> = <span class="str">/(Name|Url|Arn|Id|Endpoint|Host|Region|Port|Key)$/</span>;
+
+<span class="kw">const</span> looksLikeOutput = (node: <span class="ty">ESTree</span>.<span class="ty">Expression</span>): boolean =&gt; {
+    <span class="kw">if</span> (node.type !== <span class="str">'MemberExpression'</span>) <span class="kw">return</span> <span class="kw">false</span>;
+    <span class="kw">if</span> (node.computed) <span class="kw">return</span> <span class="kw">false</span>;
+    <span class="kw">if</span> (node.property.type !== <span class="str">'Identifier'</span>) <span class="kw">return</span> <span class="kw">false</span>;
+    <span class="kw">return</span> <span class="ty">OUTPUT_SUFFIX</span>.<span class="fn">test</span>(node.property.name);
+};
+
+<span class="kw">export default</span> <span class="ty">Rule</span>.<span class="fn">define</span>({
+    name: <span class="str">'no-string-concat-output'</span>,
+    meta: <span class="ty">Rule</span>.<span class="fn">meta</span>({ type: <span class="str">'suggestion'</span>, description: <span class="str">'...'</span> }),
+    create: <span class="kw">function</span>* () {
+        <span class="kw">const</span> ctx = <span class="kw">yield</span>* <span class="ty">RuleContext</span>;
+        <span class="kw">return</span> {
+            <span class="ty">TemplateLiteral</span>: (node) =&gt; {
+                <span class="kw">const</span> t = node <span class="kw">as</span> <span class="ty">ESTree</span>.<span class="ty">TemplateLiteral</span>;
+                <span class="cmt">// Skip if parent is a TaggedTemplateExpression with tag `Output.interpolate`.</span>
+                <span class="kw">if</span> (t.parent?.type === <span class="str">'TaggedTemplateExpression'</span>) <span class="kw">return</span> <span class="ty">Effect</span>.<span class="ty">void</span>;
+                <span class="kw">if</span> (t.expressions.<span class="fn">some</span>(looksLikeOutput)) {
+                    <span class="kw">return</span> ctx.<span class="fn">report</span>(<span class="ty">Diagnostic</span>.<span class="fn">make</span>({
+                        node, message: <span class="str">'Use `Output.interpolate\`...\`` — concatenating an Output stringifies the lazy expression. (AL-11)'</span>
+                    }));
+                }
+                <span class="kw">return</span> <span class="ty">Effect</span>.<span class="ty">void</span>;
+            },
+            <span class="ty">BinaryExpression</span>: (node) =&gt; {
+                <span class="kw">const</span> b = node <span class="kw">as</span> <span class="ty">ESTree</span>.<span class="ty">BinaryExpression</span>;
+                <span class="kw">if</span> (b.operator !== <span class="str">'+'</span>) <span class="kw">return</span> <span class="ty">Effect</span>.<span class="ty">void</span>;
+                <span class="kw">if</span> (looksLikeOutput(b.left) || looksLikeOutput(b.right)) {
+                    <span class="kw">return</span> ctx.<span class="fn">report</span>(<span class="ty">Diagnostic</span>.<span class="fn">make</span>({
+                        node, message: <span class="str">'... (AL-11)'</span>
+                    }));
+                }
+                <span class="kw">return</span> <span class="ty">Effect</span>.<span class="ty">void</span>;
+            }
+        };
+    }
+});</pre>
+
+					<p class="ast">
+						The suffix list is the soft point. False positives are
+						likely on user code where <code>.someName</code> isn't
+						actually an Output. Recommend shipping behind an opt-in
+						<code>"hardcore"</code> preset, or expose a config
+						option for the suffix list. A type-aware implementation
+						(resolve the expression's declared type and look for
+						<code>Output&lt;…&gt;</code>) would be the proper fix
+						and is on the roadmap for <code>effect-oxlint</code>'s
+						typeAware mode.
+					</p>
+
+					<div class="verdict maybe">
+						<strong>Verdict:</strong> High leverage, real-world
+						bug-finder, but ship after the four Tier-1 rules and
+						consider gating behind <code>hardcore: true</code> in
+						plugin options until type-aware support lands.
+					</div>
+				</div>
+			</article>
+
+			<!-- ────────────────────────────────────────────────────────── -->
+
+			<article class="rule" id="r9">
+				<div class="rule-head">
+					<div class="rule-rank">Rank 6 · phase discipline</div>
+					<h2 class="rule-id">bind-in-init-only</h2>
+					<p class="rule-tagline">
+						Disallow <code>Resource.bind(...)</code> calls inside a
+						Worker / Lambda's per-request
+						<code>fetch:</code> handler. Bindings belong in the
+						outer init Effect.
+					</p>
+					<div class="badges">
+						<span class="badge high">Leverage: high</span>
+						<span class="badge med">Confidence: med</span>
+						<span class="badge tier">Tier 2</span>
+					</div>
+				</div>
+				<div class="rule-body">
+					<h3>Why it matters</h3>
+					<p class="why">
+						The init/exec phase split is load-bearing in v2:
+						<code>Binding.Policy</code> only runs at plantime,
+						<code>Binding.Service</code> ships in the runtime
+						bundle. Calling <code>.bind()</code> in the per-request
+						handler defeats the whole model — it tries to look up
+						the Policy layer in a context that doesn't have it
+						(runtime), and even when it falls back to Service,
+						you've moved one-time SDK setup into the hot path of
+						every request.
+					</p>
+
+					<div class="case-label bad">Cases this would catch</div>
+					<pre
+						class="bad"
+					><span class="ty">Cloudflare</span>.<span class="fn">Worker</span>(<span class="str">"Worker"</span>, { main: <span class="kw">import</span>.meta.path },
+    <span class="ty">Effect</span>.<span class="fn">gen</span>(<span class="kw">function</span>* () {
+        <span class="kw">return</span> {
+            fetch: <span class="ty">Effect</span>.<span class="fn">gen</span>(<span class="kw">function</span>* () {
+                <span class="kw">const</span> bucket = <span class="kw">yield</span>* <span class="ty">Cloudflare</span>.<span class="ty">R2Bucket</span>.<span class="fn">bind</span>(<span class="ty">Bucket</span>);  <span class="cmt">// ← flag</span>
+                <span class="kw">return</span> <span class="ty">HttpServerResponse</span>.<span class="fn">text</span>(<span class="str">"hi"</span>);
+            }),
+        };
+    }),
+);</pre>
+
+					<div class="case-label good">Allowed</div>
+					<pre
+						class="good"
+					><span class="ty">Cloudflare</span>.<span class="fn">Worker</span>(<span class="str">"Worker"</span>, { main: <span class="kw">import</span>.meta.path },
+    <span class="ty">Effect</span>.<span class="fn">gen</span>(<span class="kw">function</span>* () {
+        <span class="kw">const</span> bucket = <span class="kw">yield</span>* <span class="ty">Cloudflare</span>.<span class="ty">R2Bucket</span>.<span class="fn">bind</span>(<span class="ty">Bucket</span>);   <span class="cmt">// ← init phase</span>
+        <span class="kw">return</span> {
+            fetch: <span class="ty">Effect</span>.<span class="fn">gen</span>(<span class="kw">function</span>* () {
+                <span class="kw">return</span> <span class="ty">HttpServerResponse</span>.<span class="fn">text</span>(<span class="str">"hi"</span>);
+            }),
+        };
+    }),
+);</pre>
+
+					<h3>Implementation sketch</h3>
+					<pre class="impl"><span class="cmt">// Strategy:</span>
+<span class="cmt">//   1. Visit `*.bind(...)` CallExpressions.</span>
+<span class="cmt">//   2. Walk ancestors. Find the nearest enclosing function-shaped node</span>
+<span class="cmt">//      (FunctionExpression / ArrowFunctionExpression / function*).</span>
+<span class="cmt">//   3. If that function is the value of a Property whose key is `fetch`,</span>
+<span class="cmt">//      and that Property lives inside an ObjectExpression returned from</span>
+<span class="cmt">//      another Effect.gen — flag it.</span>
+
+<span class="kw">import</span> { <span class="ty">AST</span>, <span class="ty">Diagnostic</span>, <span class="ty">Rule</span>, <span class="ty">RuleContext</span> } <span class="kw">from</span> <span class="str">'effect-oxlint'</span>;
+
+<span class="kw">export default</span> <span class="ty">Rule</span>.<span class="fn">define</span>({
+    name: <span class="str">'bind-in-init-only'</span>,
+    meta: <span class="ty">Rule</span>.<span class="fn">meta</span>({ type: <span class="str">'problem'</span>, description: <span class="str">'...'</span> }),
+    create: <span class="kw">function</span>* () {
+        <span class="kw">const</span> ctx = <span class="kw">yield</span>* <span class="ty">RuleContext</span>;
+        <span class="kw">return</span> {
+            <span class="ty">CallExpression</span>: (node) =&gt; {
+                <span class="kw">const</span> call = node <span class="kw">as</span> <span class="ty">ESTree</span>.<span class="ty">CallExpression</span>;
+                <span class="kw">if</span> (call.callee.type !== <span class="str">'MemberExpression'</span>) <span class="kw">return</span> <span class="ty">Effect</span>.<span class="ty">void</span>;
+                <span class="kw">if</span> (call.callee.property.type !== <span class="str">'Identifier'</span>) <span class="kw">return</span> <span class="ty">Effect</span>.<span class="ty">void</span>;
+                <span class="kw">if</span> (call.callee.property.name !== <span class="str">'bind'</span>) <span class="kw">return</span> <span class="ty">Effect</span>.<span class="ty">void</span>;
+
+                <span class="cmt">// Walk ancestors looking for `Property{ key.name = 'fetch' }` value.</span>
+                <span class="kw">let</span> cursor: <span class="ty">ESTree</span>.<span class="ty">Node</span> | <span class="kw">undefined</span> = node.parent;
+                <span class="kw">while</span> (cursor !== <span class="kw">undefined</span>) {
+                    <span class="kw">if</span> (cursor.type === <span class="str">'Property'</span>
+                     &amp;&amp; cursor.key.type === <span class="str">'Identifier'</span>
+                     &amp;&amp; cursor.key.name === <span class="str">'fetch'</span>) {
+                        <span class="kw">return</span> ctx.<span class="fn">report</span>(<span class="ty">Diagnostic</span>.<span class="fn">make</span>({
+                            node,
+                            message: <span class="str">'`.bind()` belongs in the outer init Effect, not inside the per-request `fetch:` handler. (AL-9)'</span>
+                        }));
+                    }
+                    cursor = cursor.parent;
+                }
+                <span class="kw">return</span> <span class="ty">Effect</span>.<span class="ty">void</span>;
+            }
+        };
+    }
+});</pre>
+
+					<p class="ast">
+						Ancestor walking via the <code>.parent</code> chain that
+						oxlint synthesizes (same trick
+						<code>avoid-any</code> uses for double-cast detection).
+						Refinement to reduce false positives on unrelated
+						<code>.bind()</code> calls (e.g.
+						<code>Function.prototype.bind</code> inside a
+						<code>fetch:</code>): require the callee object to be a
+						MemberExpression rooted in a known Alchemy namespace.
+					</p>
+
+					<div class="verdict maybe">
+						<strong>Verdict:</strong> High leverage and the cleanest
+						"you've misunderstood the framework" diagnostic in the
+						whole list. The ancestor walk is the only non-trivial
+						bit — recommend implementing once the simpler rules
+						ship.
+					</div>
+				</div>
+			</article>
+
+			<!-- ────────────────────────────────────────────────────────── -->
+
+			<article class="rule" id="r14">
+				<div class="rule-head">
+					<div class="rule-rank">Rank 7 · structure</div>
+					<h2 class="rule-id">
+						platform-main-import-meta-path-when-collocated
+					</h2>
+					<p class="rule-tagline">
+						When a file <code>export default</code>s a Platform
+						constructor, its <code>main:</code> should be
+						<code>import.meta.path</code>.
+					</p>
+					<div class="badges">
+						<span class="badge low">Leverage: low</span>
+						<span class="badge med">Confidence: med</span>
+						<span class="badge tier">Tier 4</span>
+					</div>
+				</div>
+				<div class="rule-body">
+					<h3>Why it matters</h3>
+					<p class="why">
+						The collocated-platform pattern (one file = one Worker,
+						infra + runtime side by side) is the canonical v2
+						layout. The tell is <code>main: import.meta.path</code>:
+						it lets you move the file around without updating any
+						path string. A hardcoded
+						<code>"./src/worker.ts"</code> in a file that
+						<em>is</em> <code>./src/worker.ts</code> works today but
+						breaks the moment the file is moved or renamed.
+					</p>
+
+					<div class="case-label bad">Cases this would catch</div>
+					<pre class="bad"><span class="cmt">// src/worker.ts</span>
+<span class="kw">export default</span> <span class="ty">Cloudflare</span>.<span class="fn">Worker</span>(<span class="str">"Worker"</span>, {
+    main: <span class="str">"./src/worker.ts"</span>,                        <span class="cmt">// ← flag</span>
+}, <span class="ty">Effect</span>.<span class="fn">gen</span>(<span class="kw">function</span>* () { ... }));</pre>
+
+					<div class="case-label good">Allowed</div>
+					<pre class="good"><span class="cmt">// src/worker.ts</span>
+<span class="kw">export default</span> <span class="ty">Cloudflare</span>.<span class="fn">Worker</span>(<span class="str">"Worker"</span>, {
+    main: <span class="kw">import</span>.meta.path,
+}, <span class="ty">Effect</span>.<span class="fn">gen</span>(<span class="kw">function</span>* () { ... }));</pre>
+
+					<h3>Implementation sketch</h3>
+					<pre
+						class="impl"
+					><span class="cmt">// Visit ExportDefaultDeclaration whose declaration is a Platform call.</span>
+<span class="cmt">// Find the props object (2nd arg). If `main:` value is a string literal</span>
+<span class="cmt">// (not `import.meta.path`), flag it.</span>
+
+<span class="kw">const</span> isImportMetaPath = (expr: <span class="ty">ESTree</span>.<span class="ty">Expression</span>): boolean =&gt; {
+    <span class="kw">if</span> (expr.type !== <span class="str">'MemberExpression'</span>) <span class="kw">return</span> <span class="kw">false</span>;
+    <span class="kw">if</span> (expr.computed) <span class="kw">return</span> <span class="kw">false</span>;
+    <span class="kw">if</span> (expr.property.type !== <span class="str">'Identifier'</span> || expr.property.name !== <span class="str">'path'</span>) <span class="kw">return</span> <span class="kw">false</span>;
+    <span class="kw">return</span> expr.object.type === <span class="str">'MetaProperty'</span>;   <span class="cmt">// import.meta</span>
+};</pre>
+
+					<div class="verdict maybe">
+						<strong>Verdict:</strong> Nice-to-have. Skip unless you
+						find yourself moving Worker files around a lot. The
+						"wrong" form continues to work — it's purely a
+						refactor-resilience nudge.
+					</div>
+				</div>
+			</article>
+
+			<!-- ────────────────────────────────────────────────────────── -->
+
+			<article class="rule" id="r10">
+				<div class="rule-head">
+					<div class="rule-rank">Rank 8 · naming</div>
+					<h2 class="rule-id">no-shadowing-global-worker</h2>
+					<p class="rule-tagline">
+						Warn when <code>Worker</code> is imported as a named
+						import or declared locally — the global
+						<code>Worker</code> (Web Worker) collides.
+					</p>
+					<div class="badges">
+						<span class="badge low">Leverage: low-med</span>
+						<span class="badge med">Confidence: med</span>
+						<span class="badge tier">Tier 2</span>
+					</div>
+				</div>
+				<div class="rule-body">
+					<h3>Why it matters</h3>
+					<p class="why">
+						Cloudflare Workers run in a Web-Worker-shaped runtime
+						where <code>Worker</code> is a global constructor. A
+						named import
+						<code>import { Worker } from "alchemy/Cloudflare"</code>
+						shadows it locally, and inside the Worker code you can
+						no longer reference the global. In practice the
+						<code>prefer-namespace-imports</code> rule already
+						steers people away from this, but a targeted message
+						helps catch local class declarations that happen to be
+						named <code>Worker</code>.
+					</p>
+
+					<div class="case-label bad">Cases this would catch</div>
+					<pre
+						class="bad"
+					><span class="kw">import</span> { <span class="ty">Worker</span> } <span class="kw">from</span> <span class="str">"alchemy/Cloudflare"</span>;   <span class="cmt">// ← flag (also caught by AL-8)</span>
+<span class="kw">class</span> <span class="ty">Worker</span> { ... }                              <span class="cmt">// ← flag in any file importing alchemy/Cloudflare</span></pre>
+
+					<div class="case-label good">Allowed</div>
+					<pre
+						class="good"
+					><span class="kw">import</span> * <span class="kw">as</span> <span class="ty">Cloudflare</span> <span class="kw">from</span> <span class="str">"alchemy/Cloudflare"</span>;
+<span class="ty">Cloudflare</span>.<span class="fn">Worker</span>(<span class="str">"Worker"</span>, ...);</pre>
+
+					<div class="verdict skip">
+						<strong>Verdict:</strong> Mostly subsumed by
+						<code>prefer-namespace-imports</code> (AL-8). Skip as a
+						standalone rule; consider folding the message into
+						AL-8's diagnostic when the named identifier happens to
+						be <code>Worker</code>.
+					</div>
+				</div>
+			</article>
+
+			<!-- ────────────────────────────────────────────────────────── -->
+
+			<article class="rule" id="r12">
+				<div class="rule-head">
+					<div class="rule-rank">Rank 9 · Output safety</div>
+					<h2 class="rule-id">no-console-log-output</h2>
+					<p class="rule-tagline">
+						Warn on <code>console.log(resource.attr)</code> where
+						the value is an Output — logs
+						<code>[Output]</code> instead of the resolved value.
+					</p>
+					<div class="badges">
+						<span class="badge low">Leverage: low-med</span>
+						<span class="badge low">Confidence: low-med</span>
+						<span class="badge tier">Tier 3</span>
+					</div>
+				</div>
+				<div class="rule-body">
+					<h3>Why it matters</h3>
+					<p class="why">
+						Debugging
+						<code>console.log(bucket.bucketName)</code> shows
+						<code>[Output]</code> rather than the resolved name,
+						because the value is a lazy reference. The right pattern
+						is to <code>return { bucketName }</code> from the Stack
+						— outputs print at the end of
+						<code>alchemy deploy</code> — or to
+						<code>pipe(Output.map(console.log))</code>. The Effect
+						plugin's existing <code>use-console-service</code> rule
+						already covers <code>console.*</code> usage broadly, so
+						this is a redundant narrower variant.
+					</p>
+
+					<div class="case-label bad">
+						Cases this would catch (heuristically)
+					</div>
+					<pre
+						class="bad"
+					><span class="kw">const</span> bucket = <span class="kw">yield</span>* <span class="ty">Cloudflare</span>.<span class="fn">R2Bucket</span>(<span class="str">"Bucket"</span>);
+console.<span class="fn">log</span>(bucket.bucketName);              <span class="cmt">// prints "[Output]"</span></pre>
+
+					<div class="case-label good">Allowed</div>
+					<pre
+						class="good"
+					><span class="cmt">// Return outputs from the Stack generator — alchemy prints them after deploy.</span>
+<span class="kw">return</span> { bucketName: bucket.bucketName };</pre>
+
+					<div class="verdict skip">
+						<strong>Verdict:</strong> Skip. Too much overlap with
+						<code>oxlint-plugin-effect</code>'s
+						<code>use-console-service</code>, low blast radius
+						(mistake surfaces in dev on first run), and the
+						heuristic is no more accurate than
+						<code>no-string-concat-output</code>'s. Revisit if a
+						type-aware engine lands.
+					</div>
+				</div>
+			</article>
+
+			<!-- ────────────────────────────────────────────────────────── -->
+
+			<p class="footnote">
+				Rules already shipped: <code>no-v1-await-stack</code>,
+				<code>no-v1-import-paths</code>,
+				<code>require-stable-logical-id</code>,
+				<code>prefer-namespace-imports</code>,
+				<code>stack-in-alchemy-run-file</code>. See
+				<code>src/rules/</code> and <code>test/rules/</code> for the
+				working implementations and the test patterns they all share.
+			</p>
+		</div>
+	</body>
+</html>

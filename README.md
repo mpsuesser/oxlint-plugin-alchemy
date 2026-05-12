@@ -1,5 +1,7 @@
 # oxlint-plugin-alchemy
 
+[![npm](https://img.shields.io/npm/v/@mpsuesser/oxlint-plugin-alchemy)](https://www.npmjs.com/package/@mpsuesser/oxlint-plugin-alchemy)
+[![JSR](https://jsr.io/badges/@mpsuesser/oxlint-plugin-alchemy)](https://jsr.io/@mpsuesser/oxlint-plugin-alchemy)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
 
 An opinionated [oxlint](https://oxc.rs/docs/guide/usage/linter) plugin for [Alchemy v2](https://v2.alchemy.run) that drives your IaC codebase toward idiomatic, safe, and maintainable resource definitions — v1→v2 migration footguns, Cloudflare conventions, Output-safety, and file-structure expectations encoded as lint rules.

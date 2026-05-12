@@ -1,3 +1,5 @@
+import type { CreateRule } from '@oxlint/plugins';
+
 import { Plugin } from 'effect-oxlint';
 
 import bindInInitOnly from './rules/bind-in-init-only.ts';
@@ -16,34 +18,58 @@ import requireStableLogicalId from './rules/require-stable-logical-id.ts';
 import stackInAlchemyRunFile from './rules/stack-in-alchemy-run-file.ts';
 
 /**
+ * Mark a rule as part of the plugin's recommended set.
+ *
+ * Users can then enable every Alchemy rule at once via
+ * `"categories": { "recommended": "error" }` in `oxlint.json`, instead
+ * of having to list each rule individually.
+ *
+ * @since 0.0.0
+ */
+const recommend = (rule: CreateRule): CreateRule => ({
+	...rule,
+	meta: {
+		...rule.meta,
+		docs: {
+			...rule.meta?.docs,
+			recommended: true
+		}
+	}
+});
+
+const rules: Record<string, CreateRule> = {
+	// ── v1 → v2 migration footguns ───────────────────────────
+	'no-v1-await-stack': noV1AwaitStack,
+	'no-v1-await-resource': noV1AwaitResource,
+	'no-v1-finalize': noV1Finalize,
+	'no-v1-entrypoint-prop': noV1EntrypointProp,
+	'no-v1-import-paths': noV1ImportPaths,
+	'no-shouty-binding-keys': noShoutyBindingKeys,
+
+	// ── Native v2 conventions ────────────────────────────────
+	'require-stable-logical-id': requireStableLogicalId,
+	'prefer-namespace-imports': preferNamespaceImports,
+	'bind-in-init-only': bindInInitOnly,
+	'no-shadowing-global-worker': noShadowingGlobalWorker,
+
+	// ── Output safety ────────────────────────────────────────
+	'no-string-concat-output': noStringConcatOutput,
+	'no-console-log-output': noConsoleLogOutput,
+
+	// ── File structure ───────────────────────────────────────
+	'stack-in-alchemy-run-file': stackInAlchemyRunFile,
+	'platform-main-import-meta-path-when-collocated':
+		platformMainImportMetaPathWhenCollocated
+};
+
+/**
  * Oxlint plugin enforcing idiomatic Alchemy v2 usage.
  *
  * @since 0.0.0
  */
 export default Plugin.define({
-	name: 'alchemy',
-	rules: {
-		// ── v1 → v2 migration footguns ───────────────────────────
-		'no-v1-await-stack': noV1AwaitStack,
-		'no-v1-await-resource': noV1AwaitResource,
-		'no-v1-finalize': noV1Finalize,
-		'no-v1-entrypoint-prop': noV1EntrypointProp,
-		'no-v1-import-paths': noV1ImportPaths,
-		'no-shouty-binding-keys': noShoutyBindingKeys,
-
-		// ── Native v2 conventions ────────────────────────────────
-		'require-stable-logical-id': requireStableLogicalId,
-		'prefer-namespace-imports': preferNamespaceImports,
-		'bind-in-init-only': bindInInitOnly,
-		'no-shadowing-global-worker': noShadowingGlobalWorker,
-
-		// ── Output safety ────────────────────────────────────────
-		'no-string-concat-output': noStringConcatOutput,
-		'no-console-log-output': noConsoleLogOutput,
-
-		// ── File structure ───────────────────────────────────────
-		'stack-in-alchemy-run-file': stackInAlchemyRunFile,
-		'platform-main-import-meta-path-when-collocated':
-			platformMainImportMetaPathWhenCollocated
-	}
+	name: '@mpsuesser/alchemy',
+	rules: Object.fromEntries(
+		Object.entries(rules).map(([name, rule]) => [name, recommend(rule)])
+	)
 });

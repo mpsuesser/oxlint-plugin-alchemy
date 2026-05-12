@@ -1,5 +1,5 @@
 {
-  "name": "@oxlint-plugin-alchemy/core",
+  "name": "@mpsuesser/oxlint-plugin-alchemy",
   "version": "0.0.0",
   "license": "MIT",
   "exports": {

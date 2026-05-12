@@ -1,6 +1,6 @@
 {
   "$schema": "https://www.schemastore.org/package.json",
-  "name": "oxlint-plugin-alchemy",
+  "name": "@mpsuesser/oxlint-plugin-alchemy",
   "version": "0.0.0",
   "description": "Oxlint JS plugin enforcing Alchemy-first development conventions",
   "keywords": [

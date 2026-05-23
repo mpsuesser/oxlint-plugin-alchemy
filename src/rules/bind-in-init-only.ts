@@ -1,3 +1,4 @@
+import type { CreateRule } from '@oxlint/plugins';
 import * as Arr from 'effect/Array';
 import * as Effect from 'effect/Effect';
 import { pipe } from 'effect/Function';
@@ -76,7 +77,7 @@ const isAlchemyResourceBindCall = (node: ESTree.CallExpression): boolean =>
  *
  * @since 0.0.0
  */
-export default Rule.define({
+const rule: CreateRule = Rule.define({
 	name: 'bind-in-init-only',
 	meta: Rule.meta({
 		type: 'problem',
@@ -111,3 +112,5 @@ export default Rule.define({
 		);
 	}
 });
+
+export default rule;

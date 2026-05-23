@@ -1,3 +1,4 @@
+import type { CreateRule } from '@oxlint/plugins';
 import * as Arr from 'effect/Array';
 import * as Effect from 'effect/Effect';
 import { pipe } from 'effect/Function';
@@ -28,7 +29,7 @@ const MAIN_PROP = 'main';
  *
  * @since 0.0.0
  */
-export default Rule.define({
+const rule: CreateRule = Rule.define({
 	name: 'platform-main-import-meta-path-when-collocated',
 	meta: Rule.meta({
 		type: 'suggestion',
@@ -84,3 +85,5 @@ export default Rule.define({
 		};
 	}
 });
+
+export default rule;

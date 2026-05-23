@@ -1,3 +1,4 @@
+import type { CreateRule } from '@oxlint/plugins';
 import * as Arr from 'effect/Array';
 import * as Bool from 'effect/Boolean';
 import * as Effect from 'effect/Effect';
@@ -83,7 +84,7 @@ const namespaceAlias = (
  *
  * @since 0.0.0
  */
-export default Rule.define({
+const rule: CreateRule = Rule.define({
 	name: 'prefer-namespace-imports',
 	meta: Rule.meta({
 		type: 'suggestion',
@@ -146,3 +147,5 @@ export default Rule.define({
 		};
 	}
 });
+
+export default rule;

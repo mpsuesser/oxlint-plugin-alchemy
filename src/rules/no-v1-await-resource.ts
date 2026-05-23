@@ -1,3 +1,4 @@
+import type { CreateRule } from '@oxlint/plugins';
 import * as Arr from 'effect/Array';
 import * as Effect from 'effect/Effect';
 import { pipe } from 'effect/Function';
@@ -17,7 +18,7 @@ import { isAlchemyResourcePath } from '../alchemy.ts';
  *
  * @since 0.0.0
  */
-export default Rule.define({
+const rule: CreateRule = Rule.define({
 	name: 'no-v1-await-resource',
 	meta: Rule.meta({
 		type: 'problem',
@@ -55,3 +56,5 @@ export default Rule.define({
 		};
 	}
 });
+
+export default rule;

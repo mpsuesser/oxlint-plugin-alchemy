@@ -1,3 +1,4 @@
+import type { CreateRule } from '@oxlint/plugins';
 import * as Effect from 'effect/Effect';
 import { pipe } from 'effect/Function';
 import * as Option from 'effect/Option';
@@ -46,7 +47,7 @@ const idShadowsGlobal = (id: unknown): boolean =>
  *
  * @since 0.0.0
  */
-export default Rule.define({
+const rule: CreateRule = Rule.define({
 	name: 'no-shadowing-global-worker',
 	meta: Rule.meta({
 		type: 'suggestion',
@@ -89,3 +90,5 @@ export default Rule.define({
 		};
 	}
 });
+
+export default rule;

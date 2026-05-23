@@ -1,3 +1,4 @@
+import type { CreateRule } from '@oxlint/plugins';
 import { Plugin } from 'effect-oxlint';
 
 import bindInInitOnly from './rules/bind-in-init-only.ts';
@@ -15,7 +16,7 @@ import preferNamespaceImports from './rules/prefer-namespace-imports.ts';
 import requireStableLogicalId from './rules/require-stable-logical-id.ts';
 import stackInAlchemyRunFile from './rules/stack-in-alchemy-run-file.ts';
 
-const rules = {
+const rules: Record<string, CreateRule> = {
 	// ── v1 → v2 migration footguns ───────────────────────────
 	'no-v1-await-stack': noV1AwaitStack,
 	'no-v1-await-resource': noV1AwaitResource,
@@ -45,8 +46,15 @@ const rules = {
  *
  * @since 0.0.0
  */
-export default Plugin.define({
+const plugin: Plugin.DefinedPlugin<Record<string, CreateRule>> = Plugin.define({
 	name: '@mpsuesser/alchemy',
 	specifier: '@mpsuesser/oxlint-plugin-alchemy',
 	rules
 });
+
+/**
+ * Oxlint plugin for Alchemy v2 migration and project-shape rules with generated config presets.
+ *
+ * @since 0.2.1
+ */
+export default plugin;

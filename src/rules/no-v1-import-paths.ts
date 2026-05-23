@@ -1,3 +1,4 @@
+import type { CreateRule } from '@oxlint/plugins';
 import * as Schema from 'effect/Schema';
 
 import { Rule } from 'effect-oxlint';
@@ -33,8 +34,10 @@ const isV1AlchemyImportSource = Schema.is(V1AlchemyImportSource);
  *
  * @since 0.0.0
  */
-export default Rule.banImport(isV1AlchemyImportSource, {
+const rule: CreateRule = Rule.banImport(isV1AlchemyImportSource, {
 	meta: { type: 'problem' },
 	message:
 		'Alchemy v1 import paths use lowercase subpaths (`alchemy/cloudflare`). v2 uses PascalCase: `import * as Cloudflare from "alchemy/Cloudflare"`, `import * as AWS from "alchemy/AWS"`, etc. (AL-4)'
 });
+
+export default rule;

@@ -16,40 +16,46 @@ npm install -D @mpsuesser/oxlint-plugin-alchemy
 bun add -D @mpsuesser/oxlint-plugin-alchemy
 ```
 
-Register the plugin and enable the recommended category in your oxlint config:
-
-```jsonc
-// oxlint.json
-{
-	"plugins": ["@mpsuesser/oxlint-plugin-alchemy"],
-	"categories": {
-		"recommended": "error"
-	}
-}
-```
-
-All 14 rules ship in the `recommended` category, so the snippet above turns the whole rule set on at once. To switch the severity, change `"error"` to `"warn"`.
-
-To turn an individual rule off, set it to `"off"` in the `rules` block. Rules are namespaced under `@mpsuesser/alchemy/`:
-
-```jsonc
-{
-	"plugins": ["@mpsuesser/oxlint-plugin-alchemy"],
-	"categories": {
-		"recommended": "error"
-	},
-	"rules": {
-		"@mpsuesser/alchemy/no-console-log-output": "off"
-	}
-}
-```
-
-To suppress a rule at a specific call site, use oxlint's native disable directive:
+Use the generated recommended config from `oxlint.config.ts`:
 
 ```ts
-// oxlint-disable-next-line @mpsuesser/alchemy/require-stable-logical-id -- ID is derived once at module load
-Cloudflare.R2Bucket(BUCKET_ID);
+import { defineConfig } from 'oxlint';
+import alchemy from '@mpsuesser/oxlint-plugin-alchemy';
+
+export default defineConfig({
+	extends: [alchemy.configs.recommended]
+});
 ```
+
+`configs.recommended` registers the package through oxlint's `jsPlugins` field and enables all 14 rules at `error` severity.
+
+To override an individual rule, add a `rules` entry after the `extends` block:
+
+```ts
+import { defineConfig } from 'oxlint';
+import alchemy from '@mpsuesser/oxlint-plugin-alchemy';
+
+export default defineConfig({
+	extends: [alchemy.configs.recommended],
+	rules: {
+		'@mpsuesser/alchemy/no-console-log-output': 'off',
+		'@mpsuesser/alchemy/no-v1-import-paths': 'warn'
+	}
+});
+```
+
+If you use `.oxlintrc.json`, oxlint cannot import a package config object. Configure the JS plugin and any rules you want explicitly:
+
+```jsonc
+{
+	"jsPlugins": ["@mpsuesser/oxlint-plugin-alchemy"],
+	"rules": {
+		"@mpsuesser/alchemy/no-v1-import-paths": "error"
+	}
+}
+```
+
+Use `oxlint.config.ts` when you want the full generated recommended config.
 
 ## Rules at a glance
 

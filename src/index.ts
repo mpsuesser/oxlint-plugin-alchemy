@@ -1,5 +1,3 @@
-import type { CreateRule } from '@oxlint/plugins';
-
 import { Plugin } from 'effect-oxlint';
 
 import bindInInitOnly from './rules/bind-in-init-only.ts';
@@ -17,27 +15,7 @@ import preferNamespaceImports from './rules/prefer-namespace-imports.ts';
 import requireStableLogicalId from './rules/require-stable-logical-id.ts';
 import stackInAlchemyRunFile from './rules/stack-in-alchemy-run-file.ts';
 
-/**
- * Mark a rule as part of the plugin's recommended set.
- *
- * Users can then enable every Alchemy rule at once via
- * `"categories": { "recommended": "error" }` in `oxlint.json`, instead
- * of having to list each rule individually.
- *
- * @since 0.0.0
- */
-const recommend = (rule: CreateRule): CreateRule => ({
-	...rule,
-	meta: {
-		...rule.meta,
-		docs: {
-			...rule.meta?.docs,
-			recommended: true
-		}
-	}
-});
-
-const rules: Record<string, CreateRule> = {
+const rules = {
 	// ── v1 → v2 migration footguns ───────────────────────────
 	'no-v1-await-stack': noV1AwaitStack,
 	'no-v1-await-resource': noV1AwaitResource,
@@ -69,7 +47,6 @@ const rules: Record<string, CreateRule> = {
  */
 export default Plugin.define({
 	name: '@mpsuesser/alchemy',
-	rules: Object.fromEntries(
-		Object.entries(rules).map(([name, rule]) => [name, recommend(rule)])
-	)
+	specifier: '@mpsuesser/oxlint-plugin-alchemy',
+	rules
 });

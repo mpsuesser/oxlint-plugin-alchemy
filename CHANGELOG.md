@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+## 0.2.2 — Effect 4.0.0-beta.78
+
+### Changed
+
+- Updated `effect` (and `@effect/vitest`) to `4.0.0-beta.78` and `effect-oxlint` to `^0.3.2`.
+- Switched the npm publish workflow to OIDC trusted publishing (no `NPM_TOKEN`): Node 24 plus `npm@latest` for npm >= 11.5.1.
+
 ## 0.2.1 — JSR score improvements
 
 ### Changed

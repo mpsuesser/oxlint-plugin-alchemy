@@ -1,5 +1,12 @@
 # oxlint-plugin-alchemy
 
+> [!WARNING]
+> **Retired permanently on August 15, 2026.** This repository is archived and
+> unmaintained. It remains available as a historical experiment, but it will
+> receive no maintenance, support, compatibility updates, security fixes, or
+> releases. Existing package versions remain available for historical users.
+> There is no maintained replacement.
+
 [![npm](https://img.shields.io/npm/v/@mpsuesser/oxlint-plugin-alchemy)](https://www.npmjs.com/package/@mpsuesser/oxlint-plugin-alchemy)
 [![JSR](https://jsr.io/badges/@mpsuesser/oxlint-plugin-alchemy)](https://jsr.io/@mpsuesser/oxlint-plugin-alchemy)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)

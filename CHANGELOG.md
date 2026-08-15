@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+### Retired
+
+- Permanently retired the project on August 15, 2026. The repository and
+  published versions remain available for historical use, but no maintenance,
+  support, compatibility updates, security fixes, or releases will follow.
+  There is no maintained replacement.
+
 ## 0.2.2 — Effect 4.0.0-beta.78
 
 ### Changed
